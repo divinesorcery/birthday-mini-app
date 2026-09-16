@@ -1,0 +1,1697 @@
+<!-- index.html -->
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+  <meta charset="UTF-8" />
+  <meta
+    name="viewport"
+    content="width=device-width, initial-scale=1, maximum-scale=1, viewport-fit=cover, user-scalable=no"
+  />
+  <meta name="theme-color" content="#000000" />
+
+  <title>С днём рождения ❤️</title>
+
+  <style>
+    :root {
+      --black: #000000;
+      --white: #ffffff;
+      --red: #ff1e3c;
+      --red-dark: #b5092d;
+      --pink: #ff5c91;
+      --pink-light: #ff8db2;
+      --pink-dark: #e62f68;
+    }
+
+    * {
+      box-sizing: border-box;
+      -webkit-tap-highlight-color: transparent;
+    }
+
+    html,
+    body {
+      width: 100%;
+      height: 100%;
+      margin: 0;
+      padding: 0;
+      overflow: hidden;
+      background: #000;
+      color: #fff;
+      font-family:
+        -apple-system,
+        BlinkMacSystemFont,
+        "Segoe UI",
+        Roboto,
+        Helvetica,
+        Arial,
+        sans-serif;
+    }
+
+    body {
+      min-height: 100dvh;
+      overscroll-behavior: none;
+      touch-action: manipulation;
+    }
+
+    button {
+      font: inherit;
+    }
+
+    /* =========================================================
+       ОБЩАЯ СТРУКТУРА
+       ========================================================= */
+
+    .screen {
+      position: fixed;
+      inset: 0;
+      width: 100%;
+      height: 100dvh;
+      overflow: hidden;
+      opacity: 0;
+      visibility: hidden;
+      pointer-events: none;
+      transition:
+        opacity 0.45s ease,
+        visibility 0.45s ease;
+    }
+
+    .screen.active {
+      opacity: 1;
+      visibility: visible;
+      pointer-events: auto;
+    }
+
+    /* =========================================================
+       ЭКРАН 1
+       ========================================================= */
+
+    #screen1 {
+      background: #000;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      isolation: isolate;
+    }
+
+    #floatingHearts {
+      position: absolute;
+      inset: 0;
+      width: 100%;
+      height: 100%;
+      z-index: 1;
+      pointer-events: none;
+    }
+
+    .heart-stage {
+      position: relative;
+      z-index: 3;
+      width: min(82vw, 430px);
+      aspect-ratio: 1;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      user-select: none;
+      -webkit-user-select: none;
+      touch-action: manipulation;
+
+      animation:
+        heartFloat 3.4s ease-in-out infinite,
+        heartPulse 2.25s ease-in-out infinite;
+    }
+
+    .heart-canvas {
+      position: absolute;
+      width: 100%;
+      height: 100%;
+      inset: 0;
+      filter:
+        drop-shadow(0 20px 35px rgba(255, 0, 45, 0.25))
+        drop-shadow(0 0 35px rgba(255, 0, 45, 0.2));
+      transform: perspective(900px) rotateY(-7deg);
+      transition: transform 0.25s ease;
+    }
+
+    .heart-stage:active .heart-canvas {
+      transform: perspective(900px) rotateY(5deg) scale(0.96);
+    }
+
+    .heart-label {
+      position: relative;
+      z-index: 4;
+      margin-top: 5%;
+      color: #fff;
+      font-size: clamp(26px, 7vw, 42px);
+      line-height: 1;
+      font-weight: 800;
+      letter-spacing: -0.03em;
+      text-shadow:
+        0 2px 8px rgba(0, 0, 0, 0.65),
+        0 0 20px rgba(255, 255, 255, 0.3);
+      pointer-events: none;
+    }
+
+    .heart-ripple {
+      position: absolute;
+      z-index: 2;
+      width: 10%;
+      aspect-ratio: 1;
+      border-radius: 50%;
+      background: rgba(255, 30, 60, 0.7);
+      opacity: 0;
+      pointer-events: none;
+      transform: scale(1);
+    }
+
+    .heart-stage.explode .heart-ripple {
+      animation: ripple 0.65s ease-out forwards;
+    }
+
+    .heart-stage.explode .heart-canvas {
+      animation: heartBreak 0.52s cubic-bezier(0.15, 0.85, 0.3, 1) forwards;
+    }
+
+    .heart-stage.explode .heart-label {
+      animation: labelFlash 0.35s ease-out forwards;
+    }
+
+    .screen1-hint {
+      position: absolute;
+      z-index: 3;
+      bottom: max(28px, calc(env(safe-area-inset-bottom) + 20px));
+      left: 20px;
+      right: 20px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.55);
+      font-size: 13px;
+      letter-spacing: 0.02em;
+      pointer-events: none;
+    }
+
+    @keyframes heartPulse {
+      0%, 100% {
+        transform: scale(1);
+      }
+      50% {
+        transform: scale(1.045);
+      }
+    }
+
+    @keyframes heartFloat {
+      0%, 100% {
+        margin-top: 0;
+      }
+      50% {
+        margin-top: -10px;
+      }
+    }
+
+    @keyframes ripple {
+      0% {
+        opacity: 0.75;
+        transform: scale(1);
+      }
+      100% {
+        opacity: 0;
+        transform: scale(25);
+      }
+    }
+
+    @keyframes heartBreak {
+      0% {
+        opacity: 1;
+        transform:
+          perspective(900px)
+          rotateY(-7deg)
+          scale(1);
+      }
+      35% {
+        opacity: 1;
+        transform:
+          perspective(900px)
+          rotateY(8deg)
+          scale(1.13);
+      }
+      100% {
+        opacity: 0;
+        transform:
+          perspective(900px)
+          rotateY(22deg)
+          scale(0.25);
+      }
+    }
+
+    @keyframes labelFlash {
+      0% {
+        opacity: 1;
+        transform: scale(1);
+      }
+      50% {
+        opacity: 1;
+        transform: scale(1.3);
+        text-shadow:
+          0 0 15px #fff,
+          0 0 35px #fff;
+      }
+      100% {
+        opacity: 0;
+        transform: scale(1.8);
+      }
+    }
+
+    /* =========================================================
+       ЭКРАН 2
+       ========================================================= */
+
+    #screen2 {
+      background: #000;
+    }
+
+    .birthday-content {
+      position: absolute;
+      inset: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding:
+        max(28px, calc(env(safe-area-inset-top) + 20px))
+        24px
+        max(28px, calc(env(safe-area-inset-bottom) + 20px));
+      overflow: auto;
+      -webkit-overflow-scrolling: touch;
+    }
+
+    .birthday-text {
+      width: min(900px, 100%);
+      max-height: 100%;
+      overflow: auto;
+      padding: 40px 24px;
+      color: #fff;
+      text-align: center;
+      white-space: pre-wrap;
+      font-size: clamp(19px, 4vw, 28px);
+      line-height: 1.65;
+      font-weight: 500;
+      scrollbar-width: none;
+    }
+
+    .birthday-text::-webkit-scrollbar {
+      display: none;
+    }
+
+    .paper-layer {
+      position: absolute;
+      inset: 0;
+      z-index: 5;
+      overflow: hidden;
+      background:
+        radial-gradient(
+          circle at 20% 15%,
+          rgba(255, 255, 255, 0.18) 0 2px,
+          transparent 3px
+        ),
+        radial-gradient(
+          circle at 80% 75%,
+          rgba(255, 255, 255, 0.12) 0 1px,
+          transparent 3px
+        ),
+        repeating-linear-gradient(
+          35deg,
+          rgba(255, 255, 255, 0.025) 0 2px,
+          transparent 2px 8px
+        ),
+        linear-gradient(
+          135deg,
+          #ff79a8 0%,
+          #ff5c91 35%,
+          #ed4077 100%
+        );
+      box-shadow:
+        inset 0 0 80px rgba(122, 0, 40, 0.25),
+        inset 0 0 4px rgba(255, 255, 255, 0.4);
+      touch-action: none;
+      user-select: none;
+      -webkit-user-select: none;
+    }
+
+    .paper-shine {
+      position: absolute;
+      inset: 0;
+      pointer-events: none;
+      background:
+        linear-gradient(
+          115deg,
+          transparent 0%,
+          rgba(255, 255, 255, 0.15) 42%,
+          transparent 57%
+        );
+      transform: translateX(-100%);
+      animation: paperShine 5s ease-in-out infinite;
+    }
+
+    @keyframes paperShine {
+      0%, 30% {
+        transform: translateX(-100%);
+      }
+      65%, 100% {
+        transform: translateX(100%);
+      }
+    }
+
+    .scratch-grid {
+      position: absolute;
+      inset: 0;
+      display: grid;
+      grid-template-columns: repeat(6, 1fr);
+      grid-template-rows: repeat(8, 1fr);
+      gap: 1px;
+      background: rgba(255, 255, 255, 0.12);
+    }
+
+    .paper-piece {
+      position: relative;
+      overflow: hidden;
+      cursor: grab;
+      background:
+        radial-gradient(
+          circle at 25% 25%,
+          rgba(255, 255, 255, 0.13),
+          transparent 30%
+        ),
+        linear-gradient(
+          135deg,
+          #ff78a8,
+          #f84e87
+        );
+      box-shadow:
+        inset 1px 1px 0 rgba(255, 255, 255, 0.15),
+        inset -1px -1px 0 rgba(125, 0, 50, 0.12);
+      will-change: transform, opacity, filter;
+      transition:
+        transform 0.46s cubic-bezier(0.2, 0.85, 0.3, 1),
+        opacity 0.4s ease,
+        filter 0.4s ease;
+    }
+
+    .paper-piece::after {
+      content: "";
+      position: absolute;
+      inset: 10%;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.07);
+      filter: blur(8px);
+      pointer-events: none;
+    }
+
+    .paper-piece.removed {
+      pointer-events: none;
+      opacity: 0;
+      filter:
+        blur(5px)
+        brightness(1.5);
+    }
+
+    .scratch-instruction {
+      position: absolute;
+      z-index: 7;
+      left: 50%;
+      top: 50%;
+      transform: translate(-50%, -50%);
+      width: min(360px, 80vw);
+      text-align: center;
+      color: rgba(255, 255, 255, 0.95);
+      font-size: clamp(18px, 5vw, 26px);
+      font-weight: 700;
+      line-height: 1.35;
+      text-shadow:
+        0 2px 10px rgba(0, 0, 0, 0.25);
+      pointer-events: none;
+      transition:
+        opacity 0.35s ease,
+        transform 0.35s ease;
+    }
+
+    .scratch-instruction.hidden {
+      opacity: 0;
+      transform: translate(-50%, -50%) scale(0.85);
+    }
+
+    .progress-wrap {
+      position: absolute;
+      z-index: 8;
+      left: 50%;
+      bottom: max(22px, calc(env(safe-area-inset-bottom) + 14px));
+      transform: translateX(-50%);
+      width: min(260px, 65vw);
+      pointer-events: none;
+      transition: opacity 0.4s ease;
+    }
+
+    .progress-wrap.hidden {
+      opacity: 0;
+    }
+
+    .progress-track {
+      width: 100%;
+      height: 4px;
+      border-radius: 999px;
+      background: rgba(255, 255, 255, 0.2);
+      overflow: hidden;
+      backdrop-filter: blur(5px);
+    }
+
+    .progress-bar {
+      width: 0%;
+      height: 100%;
+      border-radius: inherit;
+      background: #fff;
+      box-shadow: 0 0 12px rgba(255, 255, 255, 0.8);
+      transition: width 0.15s ease;
+    }
+
+    .progress-label {
+      margin-top: 7px;
+      text-align: center;
+      color: rgba(255, 255, 255, 0.75);
+      font-size: 11px;
+    }
+
+    /* Чтобы на очень широком экране бумажка оставалась визуально приятной */
+    @media (min-width: 900px) {
+      .scratch-grid {
+        inset: 2.5%;
+        border-radius: 24px;
+        overflow: hidden;
+        box-shadow:
+          0 30px 100px rgba(255, 0, 80, 0.15),
+          inset 0 0 50px rgba(255, 255, 255, 0.06);
+      }
+
+      .paper-layer {
+        background: #000;
+      }
+
+      .paper-shine {
+        inset: 2.5%;
+        border-radius: 24px;
+      }
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      .heart-stage,
+      .paper-shine {
+        animation: none;
+      }
+
+      .screen,
+      .paper-piece,
+      .scratch-instruction {
+        transition-duration: 0.15s;
+      }
+    }
+  </style>
+</head>
+
+<body>
+
+  <!-- =========================================================
+       ЭКРАН 1
+       ========================================================= -->
+  <main id="screen1" class="screen active" aria-label="Поздравление">
+    <canvas id="floatingHearts" aria-hidden="true"></canvas>
+
+    <div
+      id="mainHeart"
+      class="heart-stage"
+      role="button"
+      tabindex="0"
+      aria-label="Нажми"
+    >
+      <canvas
+        id="heartCanvas"
+        class="heart-canvas"
+        aria-hidden="true"
+      ></canvas>
+
+      <span class="heart-label">Нажми</span>
+      <span class="heart-ripple"></span>
+    </div>
+
+    <div class="screen1-hint">
+      ❤️ Для тебя
+    </div>
+  </main>
+
+  <!-- =========================================================
+       ЭКРАН 2
+       ========================================================= -->
+  <main id="screen2" class="screen" aria-label="Поздравление">
+    <section class="birthday-content">
+      <div id="birthdayText" class="birthday-text"></div>
+    </section>
+
+    <div id="paperLayer" class="paper-layer">
+      <div class="paper-shine"></div>
+
+      <div
+        id="scratchGrid"
+        class="scratch-grid"
+        aria-label="Открой поздравление"
+      ></div>
+
+      <div id="scratchInstruction" class="scratch-instruction">
+        Проведи пальцем<br />
+        и открой своё поздравление ❤️
+      </div>
+
+      <div id="progressWrap" class="progress-wrap">
+        <div class="progress-track">
+          <div id="progressBar" class="progress-bar"></div>
+        </div>
+        <div id="progressLabel" class="progress-label">
+          Открыто: 0%
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <!-- Telegram WebApp SDK -->
+  <script src="https://telegram.org/js/telegram-web-app.js"></script>
+
+  <script>
+    "use strict";
+
+    /* =========================================================
+       ⚠️ ЗАМЕНИ МЕНЯ
+       ВСТАВЬ СЮДА СВОЙ ТЕКСТ ПОЗДРАВЛЕНИЯ
+       ========================================================= */
+
+    const BIRTHDAY_TEXT = `
+С днём рождения, моя любимая! ❤️
+
+Пусть этот день подарит тебе столько же тепла,
+сколько ты даришь окружающим.
+
+Желаю тебе улыбок, счастливых моментов,
+исполнения самых заветных желаний
+и огромного количества любви.
+
+Ты заслуживаешь самого прекрасного. ❤️
+
+Будь счастлива!
+`;
+
+    /* =========================================================
+       Telegram WebApp
+       ========================================================= */
+
+    const tg = window.Telegram?.WebApp || null;
+
+    if (tg) {
+      try {
+        tg.ready();
+        tg.expand();
+
+        if (typeof tg.setHeaderColor === "function") {
+          tg.setHeaderColor("#000000");
+        }
+
+        if (typeof tg.setBackgroundColor === "function") {
+          tg.setBackgroundColor("#000000");
+        }
+
+        if (typeof tg.enableClosingConfirmation === "function") {
+          // Не включаем подтверждение закрытия:
+          // для поздравления оно не нужно.
+        }
+      } catch (error) {
+        console.warn("Telegram WebApp API:", error);
+      }
+    }
+
+    /* =========================================================
+       DOM
+       ========================================================= */
+
+    const screen1 = document.getElementById("screen1");
+    const screen2 = document.getElementById("screen2");
+
+    const mainHeart = document.getElementById("mainHeart");
+    const heartCanvas = document.getElementById("heartCanvas");
+
+    const floatingCanvas = document.getElementById("floatingHearts");
+
+    const birthdayText = document.getElementById("birthdayText");
+    const paperLayer = document.getElementById("paperLayer");
+    const scratchGrid = document.getElementById("scratchGrid");
+
+    const scratchInstruction =
+      document.getElementById("scratchInstruction");
+
+    const progressWrap =
+      document.getElementById("progressWrap");
+
+    const progressBar =
+      document.getElementById("progressBar");
+
+    const progressLabel =
+      document.getElementById("progressLabel");
+
+    birthdayText.textContent = BIRTHDAY_TEXT.trim();
+
+    /* =========================================================
+       ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
+       ========================================================= */
+
+    function random(min, max) {
+      return Math.random() * (max - min) + min;
+    }
+
+    function clamp(value, min, max) {
+      return Math.max(min, Math.min(max, value));
+    }
+
+    function haptic() {
+      try {
+        if (
+          tg &&
+          tg.HapticFeedback &&
+          typeof tg.HapticFeedback.impactOccurred === "function"
+        ) {
+          tg.HapticFeedback.impactOccurred("light");
+        }
+      } catch (error) {
+        // В обычном браузере ничего не делаем.
+      }
+    }
+
+    function strongHaptic() {
+      try {
+        if (
+          tg &&
+          tg.HapticFeedback &&
+          typeof tg.HapticFeedback.impactOccurred === "function"
+        ) {
+          tg.HapticFeedback.impactOccurred("medium");
+        }
+      } catch (error) {
+        // Ничего.
+      }
+    }
+
+    /* =========================================================
+       ЦЕНТРАЛЬНОЕ 3D-СЕРДЦЕ
+       Canvas + CSS perspective
+       ========================================================= */
+
+    const heartCtx = heartCanvas.getContext("2d");
+
+    function resizeHeartCanvas() {
+      const rect = heartCanvas.getBoundingClientRect();
+      const dpr = Math.min(window.devicePixelRatio || 1, 2);
+
+      heartCanvas.width = Math.round(rect.width * dpr);
+      heartCanvas.height = Math.round(rect.height * dpr);
+
+      heartCtx.setTransform(dpr, 0, 0, dpr, 0, 0);
+    }
+
+    function heartPath(ctx, cx, cy, size) {
+      const top = cy - size * 0.25;
+
+      ctx.beginPath();
+
+      ctx.moveTo(cx, cy + size * 0.42);
+
+      ctx.bezierCurveTo(
+        cx - size * 0.08,
+        cy + size * 0.27,
+        cx - size * 0.52,
+        cy + size * 0.03,
+        cx - size * 0.56,
+        cy - size * 0.24
+      );
+
+      ctx.bezierCurveTo(
+        cx - size * 0.61,
+        cy - size * 0.61,
+        cx - size * 0.11,
+        cy - size * 0.75,
+        cx,
+        top
+      );
+
+      ctx.bezierCurveTo(
+        cx + size * 0.11,
+        cy - size * 0.75,
+        cx + size * 0.61,
+        cy - size * 0.61,
+        cx + size * 0.56,
+        cy - size * 0.24
+      );
+
+      ctx.bezierCurveTo(
+        cx + size * 0.52,
+        cy + size * 0.03,
+        cx + size * 0.08,
+        cy + size * 0.27,
+        cx,
+        cy + size * 0.42
+      );
+
+      ctx.closePath();
+    }
+
+    function drawMainHeart(time) {
+      const rect = heartCanvas.getBoundingClientRect();
+
+      if (!rect.width || !rect.height) {
+        requestAnimationFrame(drawMainHeart);
+        return;
+      }
+
+      const width = rect.width;
+      const height = rect.height;
+
+      heartCtx.clearRect(0, 0, width, height);
+
+      const cx = width / 2;
+      const cy = height / 2 + height * 0.02;
+      const size = Math.min(width, height) * 0.77;
+
+      const pulse = 1 + Math.sin(time * 0.0022) * 0.015;
+
+      heartCtx.save();
+
+      heartCtx.translate(cx, cy);
+      heartCtx.scale(pulse, pulse);
+      heartCtx.translate(-cx, -cy);
+
+      /* Внешнее свечение */
+      heartCtx.save();
+      heartCtx.shadowColor = "rgba(255, 20, 55, 0.6)";
+      heartCtx.shadowBlur = 35;
+
+      heartPath(
+        heartCtx,
+        cx,
+        cy,
+        size
+      );
+
+      heartCtx.fillStyle = "#ff1744";
+      heartCtx.fill();
+      heartCtx.restore();
+
+      /* Основной объём */
+      const gradient = heartCtx.createRadialGradient(
+        cx - size * 0.22,
+        cy - size * 0.30,
+        size * 0.03,
+        cx,
+        cy,
+        size * 0.72
+      );
+
+      gradient.addColorStop(0, "#ff9aaa");
+      gradient.addColorStop(0.16, "#ff506d");
+      gradient.addColorStop(0.48, "#f21f45");
+      gradient.addColorStop(0.78, "#c70b30");
+      gradient.addColorStop(1, "#79001d");
+
+      heartPath(
+        heartCtx,
+        cx,
+        cy,
+        size
+      );
+
+      heartCtx.fillStyle = gradient;
+      heartCtx.fill();
+
+      /* Нижняя тень */
+      heartCtx.save();
+
+      heartPath(
+        heartCtx,
+        cx,
+        cy + size * 0.035,
+        size
+      );
+
+      const bottomGradient = heartCtx.createLinearGradient(
+        cx,
+        cy - size * 0.3,
+        cx,
+        cy + size * 0.55
+      );
+
+      bottomGradient.addColorStop(
+        0,
+        "rgba(255,255,255,0)"
+      );
+
+      bottomGradient.addColorStop(
+        0.72,
+        "rgba(80,0,15,0.06)"
+      );
+
+      bottomGradient.addColorStop(
+        1,
+        "rgba(20,0,5,0.5)"
+      );
+
+      heartCtx.fillStyle = bottomGradient;
+      heartCtx.fill();
+      heartCtx.restore();
+
+      /* Большой блик */
+      heartCtx.save();
+
+      heartPath(
+        heartCtx,
+        cx,
+        cy,
+        size
+      );
+
+      heartCtx.clip();
+
+      const shine = heartCtx.createRadialGradient(
+        cx - size * 0.23,
+        cy - size * 0.31,
+        0,
+        cx - size * 0.23,
+        cy - size * 0.31,
+        size * 0.37
+      );
+
+      shine.addColorStop(
+        0,
+        "rgba(255,255,255,0.72)"
+      );
+
+      shine.addColorStop(
+        0.15,
+        "rgba(255,255,255,0.34)"
+      );
+
+      shine.addColorStop(
+        0.5,
+        "rgba(255,255,255,0.06)"
+      );
+
+      shine.addColorStop(
+        1,
+        "rgba(255,255,255,0)"
+      );
+
+      heartCtx.fillStyle = shine;
+      heartCtx.fillRect(
+        cx - size,
+        cy - size,
+        size * 2,
+        size * 2
+      );
+
+      /* Маленький блик */
+      heartCtx.beginPath();
+
+      heartCtx.ellipse(
+        cx - size * 0.22,
+        cy - size * 0.40,
+        size * 0.075,
+        size * 0.13,
+        -0.55,
+        0,
+        Math.PI * 2
+      );
+
+      heartCtx.fillStyle = "rgba(255,255,255,0.75)";
+      heartCtx.fill();
+
+      heartCtx.restore();
+
+      /* Контур */
+      heartPath(
+        heartCtx,
+        cx,
+        cy,
+        size
+      );
+
+      heartCtx.strokeStyle =
+        "rgba(255, 150, 170, 0.28)";
+
+      heartCtx.lineWidth = 1.2;
+      heartCtx.stroke();
+
+      heartCtx.restore();
+
+      requestAnimationFrame(drawMainHeart);
+    }
+
+    resizeHeartCanvas();
+    window.addEventListener(
+      "resize",
+      resizeHeartCanvas,
+      { passive: true }
+    );
+
+    requestAnimationFrame(drawMainHeart);
+
+    /* =========================================================
+       ЛЕТЯЩИЕ СЕРДЕЧКИ
+       Полностью Canvas/requestAnimationFrame.
+       ========================================================= */
+
+    const floatingCtx =
+      floatingCanvas.getContext("2d");
+
+    let floatingWidth = 0;
+    let floatingHeight = 0;
+    let floatingDpr = 1;
+
+    const floatingHearts = [];
+
+    function resizeFloatingCanvas() {
+      floatingWidth = window.innerWidth;
+      floatingHeight = window.innerHeight;
+      floatingDpr =
+        Math.min(window.devicePixelRatio || 1, 2);
+
+      floatingCanvas.width =
+        Math.round(floatingWidth * floatingDpr);
+
+      floatingCanvas.height =
+        Math.round(floatingHeight * floatingDpr);
+
+      floatingCanvas.style.width =
+        floatingWidth + "px";
+
+      floatingCanvas.style.height =
+        floatingHeight + "px";
+
+      floatingCtx.setTransform(
+        floatingDpr,
+        0,
+        0,
+        floatingDpr,
+        0,
+        0
+      );
+    }
+
+    function createFloatingHeart(initial = false) {
+      return {
+        x: random(-20, floatingWidth + 20),
+        y: initial
+          ? random(0, floatingHeight)
+          : floatingHeight + random(10, 80),
+
+        size: random(5, 18),
+
+        speed: random(18, 55),
+
+        alpha: random(0.15, 0.75),
+
+        phase: random(0, Math.PI * 2),
+
+        sway: random(8, 28),
+
+        swaySpeed: random(0.7, 1.5),
+
+        rotation: random(-0.25, 0.25),
+
+        rotationSpeed: random(-0.3, 0.3)
+      };
+    }
+
+    function resetFloatingHearts() {
+      floatingHearts.length = 0;
+
+      const count =
+        Math.round(
+          clamp(
+            (floatingWidth * floatingHeight) / 14500,
+            35,
+            90
+          )
+        );
+
+      for (let i = 0; i < count; i++) {
+        floatingHearts.push(
+          createFloatingHeart(true)
+        );
+      }
+    }
+
+    function drawCanvasHeart(
+      ctx,
+      x,
+      y,
+      size,
+      alpha,
+      rotation
+    ) {
+      ctx.save();
+
+      ctx.translate(x, y);
+      ctx.rotate(rotation);
+      ctx.globalAlpha = alpha;
+
+      const s = size;
+
+      ctx.beginPath();
+
+      ctx.moveTo(0, s * 0.45);
+
+      ctx.bezierCurveTo(
+        -s * 0.10,
+        s * 0.29,
+        -s * 0.58,
+        s * 0.02,
+        -s * 0.60,
+        -s * 0.27
+      );
+
+      ctx.bezierCurveTo(
+        -s * 0.62,
+        -s * 0.62,
+        -s * 0.14,
+        -s * 0.70,
+        0,
+        -s * 0.28
+      );
+
+      ctx.bezierCurveTo(
+        s * 0.14,
+        -s * 0.70,
+        s * 0.62,
+        -s * 0.62,
+        s * 0.60,
+        -s * 0.27
+      );
+
+      ctx.bezierCurveTo(
+        s * 0.58,
+        s * 0.02,
+        s * 0.10,
+        s * 0.29,
+        0,
+        s * 0.45
+      );
+
+      ctx.closePath();
+
+      const gradient = ctx.createLinearGradient(
+        -s,
+        -s,
+        s,
+        s
+      );
+
+      gradient.addColorStop(0, "#ff5a72");
+      gradient.addColorStop(0.5, "#ff1e3c");
+      gradient.addColorStop(1, "#b40027");
+
+      ctx.fillStyle = gradient;
+      ctx.shadowColor =
+        "rgba(255, 20, 50, 0.25)";
+      ctx.shadowBlur = s * 0.7;
+
+      ctx.fill();
+
+      ctx.restore();
+    }
+
+    let lastFloatingTime = performance.now();
+
+    function animateFloatingHearts(now) {
+      const delta =
+        Math.min(
+          (now - lastFloatingTime) / 1000,
+          0.05
+        );
+
+      lastFloatingTime = now;
+
+      floatingCtx.clearRect(
+        0,
+        0,
+        floatingWidth,
+        floatingHeight
+      );
+
+      for (const heart of floatingHearts) {
+        heart.y -= heart.speed * delta;
+
+        heart.phase +=
+          heart.swaySpeed * delta;
+
+        heart.rotation +=
+          heart.rotationSpeed * delta;
+
+        heart.x +=
+          Math.sin(heart.phase) *
+          heart.sway *
+          delta;
+
+        const depth =
+          heart.size / 18;
+
+        const edgeFade =
+          clamp(
+            Math.min(
+              heart.y / 90,
+              (floatingHeight - heart.y) / 120
+            ),
+            0,
+            1
+          );
+
+        drawCanvasHeart(
+          floatingCtx,
+          heart.x,
+          heart.y,
+          heart.size,
+          heart.alpha * edgeFade,
+          heart.rotation
+        );
+
+        if (heart.y < -40) {
+          Object.assign(
+            heart,
+            createFloatingHeart(false)
+          );
+        }
+      }
+
+      requestAnimationFrame(
+        animateFloatingHearts
+      );
+    }
+
+    resizeFloatingCanvas();
+    resetFloatingHearts();
+
+    window.addEventListener(
+      "resize",
+      () => {
+        resizeFloatingCanvas();
+        resetFloatingHearts();
+      },
+      { passive: true }
+    );
+
+    requestAnimationFrame(
+      animateFloatingHearts
+    );
+
+    /* =========================================================
+       ПЕРЕХОД ЭКРАН 1 -> ЭКРАН 2
+       ========================================================= */
+
+    let openingStarted = false;
+
+    function openBirthday() {
+      if (openingStarted) return;
+
+      openingStarted = true;
+
+      haptic();
+
+      mainHeart.classList.add("explode");
+
+      setTimeout(() => {
+        screen1.classList.remove("active");
+        screen2.classList.add("active");
+
+        createScratchPaper();
+
+        // Canvas первого экрана больше не нужен,
+        // но оставляем его работать без видимой нагрузки.
+      }, 430);
+    }
+
+    mainHeart.addEventListener(
+      "click",
+      openBirthday
+    );
+
+    mainHeart.addEventListener(
+      "keydown",
+      (event) => {
+        if (
+          event.key === "Enter" ||
+          event.key === " "
+        ) {
+          event.preventDefault();
+          openBirthday();
+        }
+      }
+    );
+
+    /* =========================================================
+       ЭКРАН 2 — БУМАЖКА
+       =========================================================
+
+       Используются отдельные DOM-осколки вместо Canvas-маски.
+
+       Почему:
+       - стабильнее на iOS Telegram WebView;
+       - нет сложного compositing/erase canvas;
+       - каждый кусочек можно анимировать независимо;
+       - pointer events хорошо работают и с touch, и с мышью;
+       - меньше риск проблем с retina/devicePixelRatio.
+       ========================================================= */
+
+    const GRID_COLUMNS = 6;
+    const GRID_ROWS = 8;
+    const TOTAL_PIECES =
+      GRID_COLUMNS * GRID_ROWS;
+
+    const pieces = [];
+    let removedPieces = 0;
+
+    let scratching = false;
+    let lastScratchX = null;
+    let lastScratchY = null;
+
+    function createScratchPaper() {
+      scratchGrid.innerHTML = "";
+      pieces.length = 0;
+      removedPieces = 0;
+
+      scratchInstruction.classList.remove("hidden");
+      progressWrap.classList.remove("hidden");
+
+      updateProgress();
+
+      for (
+        let row = 0;
+        row < GRID_ROWS;
+        row++
+      ) {
+        for (
+          let col = 0;
+          col < GRID_COLUMNS;
+          col++
+        ) {
+          const piece =
+            document.createElement("div");
+
+          piece.className = "paper-piece";
+
+          piece.dataset.row = String(row);
+          piece.dataset.col = String(col);
+          piece.dataset.index =
+            String(row * GRID_COLUMNS + col);
+
+          scratchGrid.appendChild(piece);
+          pieces.push(piece);
+        }
+      }
+
+      // Первая подсказка исчезает после первого действия.
+      setTimeout(() => {
+        if (removedPieces === 0) {
+          scratchInstruction.classList.add(
+            "hidden"
+          );
+        }
+      }, 3000);
+    }
+
+    function getPieceFromPoint(x, y) {
+      const element =
+        document.elementFromPoint(x, y);
+
+      if (
+        !element ||
+        !element.classList.contains(
+          "paper-piece"
+        )
+      ) {
+        return null;
+      }
+
+      return element;
+    }
+
+    function removePiece(piece, x, y) {
+      if (
+        !piece ||
+        piece.classList.contains("removed")
+      ) {
+        return;
+      }
+
+      piece.classList.add("removed");
+
+      removedPieces++;
+
+      haptic();
+
+      /*
+       * Случайный вектор отлёта.
+       * Немного учитываем направление движения пальца.
+       */
+
+      const directionX =
+        lastScratchX !== null
+          ? x - lastScratchX
+          : random(-1, 1);
+
+      const directionY =
+        lastScratchY !== null
+          ? y - lastScratchY
+          : random(-1, 1);
+
+      const magnitude =
+        Math.sqrt(
+          directionX * directionX +
+          directionY * directionY
+        ) || 1;
+
+      const normalizedX =
+        directionX / magnitude;
+
+      const normalizedY =
+        directionY / magnitude;
+
+      const distance =
+        random(70, 190);
+
+      const tx =
+        normalizedX * distance +
+        random(-45, 45);
+
+      const ty =
+        normalizedY * distance -
+        random(20, 100);
+
+      const rotation =
+        random(-55, 55);
+
+      piece.style.transform =
+        `translate3d(${tx}px, ${ty}px, 0)
+         rotate(${rotation}deg)
+         scale(${random(0.72, 1.12)})`;
+
+      updateProgress();
+
+      if (removedPieces === TOTAL_PIECES) {
+        finishScratch();
+      }
+    }
+
+    function scratchAt(x, y) {
+      const piece =
+        getPieceFromPoint(x, y);
+
+      if (piece) {
+        removePiece(piece, x, y);
+      }
+
+      /*
+       * Дополнительно открываем соседние клетки.
+       * Это делает свайп приятнее: не нужно попадать
+       * идеально в каждый квадрат.
+       */
+
+      const rect =
+        scratchGrid.getBoundingClientRect();
+
+      const cellWidth =
+        rect.width / GRID_COLUMNS;
+
+      const cellHeight =
+        rect.height / GRID_ROWS;
+
+      const col =
+        Math.floor(
+          (x - rect.left) / cellWidth
+        );
+
+      const row =
+        Math.floor(
+          (y - rect.top) / cellHeight
+        );
+
+      const radius = 0;
+
+      for (
+        let r = row - radius;
+        r <= row + radius;
+        r++
+      ) {
+        for (
+          let c = col - radius;
+          c <= col + radius;
+          c++
+        ) {
+          if (
+            r < 0 ||
+            r >= GRID_ROWS ||
+            c < 0 ||
+            c >= GRID_COLUMNS
+          ) {
+            continue;
+          }
+
+          const index =
+            r * GRID_COLUMNS + c;
+
+          const neighbor =
+            pieces[index];
+
+          if (neighbor) {
+            removePiece(
+              neighbor,
+              x,
+              y
+            );
+          }
+        }
+      }
+    }
+
+    function updateProgress() {
+      const percentage =
+        Math.round(
+          (removedPieces /
+            TOTAL_PIECES) *
+          100
+        );
+
+      progressBar.style.width =
+        percentage + "%";
+
+      progressLabel.textContent =
+        `Открыто: ${percentage}%`;
+
+      if (removedPieces > 0) {
+        scratchInstruction.classList.add(
+          "hidden"
+        );
+      }
+    }
+
+    function finishScratch() {
+      strongHaptic();
+
+      progressBar.style.width = "100%";
+      progressLabel.textContent =
+        "Открыто: 100%";
+
+      setTimeout(() => {
+        progressWrap.classList.add(
+          "hidden"
+        );
+      }, 700);
+    }
+
+    /* =========================================================
+       POINTER EVENTS
+       Работают одновременно для:
+       - iPhone/iPad;
+       - Android;
+       - Telegram Desktop;
+       - обычного браузера.
+       ========================================================= */
+
+    paperLayer.addEventListener(
+      "pointerdown",
+      (event) => {
+        if (event.pointerType === "mouse") {
+          if (event.button !== 0) return;
+        }
+
+        scratching = true;
+
+        lastScratchX = event.clientX;
+        lastScratchY = event.clientY;
+
+        try {
+          paperLayer.setPointerCapture(
+            event.pointerId
+          );
+        } catch (error) {
+          // Некоторые старые WebView могут не поддерживать capture.
+        }
+
+        scratchAt(
+          event.clientX,
+          event.clientY
+        );
+      },
+      { passive: false }
+    );
+
+    paperLayer.addEventListener(
+      "pointermove",
+      (event) => {
+        if (!scratching) return;
+
+        event.preventDefault();
+
+        const x = event.clientX;
+        const y = event.clientY;
+
+        /*
+         * Интерполируем линию между предыдущей и текущей
+         * точкой. Это важно на мобильных, где pointermove
+         * может приходить реже, чем кадры экрана.
+         */
+
+        if (
+          lastScratchX !== null &&
+          lastScratchY !== null
+        ) {
+          const dx =
+            x - lastScratchX;
+
+          const dy =
+            y - lastScratchY;
+
+          const distance =
+            Math.sqrt(
+              dx * dx +
+              dy * dy
+            );
+
+          const steps =
+            Math.max(
+              1,
+              Math.ceil(distance / 22)
+            );
+
+          for (
+            let i = 1;
+            i <= steps;
+            i++
+          ) {
+            const t = i / steps;
+
+            const interpolatedX =
+              lastScratchX +
+              dx * t;
+
+            const interpolatedY =
+              lastScratchY +
+              dy * t;
+
+            scratchAt(
+              interpolatedX,
+              interpolatedY
+            );
+          }
+        } else {
+          scratchAt(x, y);
+        }
+
+        lastScratchX = x;
+        lastScratchY = y;
+      },
+      { passive: false }
+    );
+
+    function stopScratching(event) {
+      scratching = false;
+
+      try {
+        if (
+          event &&
+          paperLayer.hasPointerCapture &&
+          paperLayer.hasPointerCapture(
+            event.pointerId
+          )
+        ) {
+          paperLayer.releasePointerCapture(
+            event.pointerId
+          );
+        }
+      } catch (error) {
+        // Ничего.
+      }
+
+      lastScratchX = null;
+      lastScratchY = null;
+    }
+
+    paperLayer.addEventListener(
+      "pointerup",
+      stopScratching,
+      { passive: true }
+    );
+
+    paperLayer.addEventListener(
+      "pointercancel",
+      stopScratching,
+      { passive: true }
+    );
+
+    paperLayer.addEventListener(
+      "pointerleave",
+      (event) => {
+        /*
+         * Для touch pointerleave обычно не мешает.
+         * Для мыши прекращаем scratching.
+         */
+        if (event.pointerType === "mouse") {
+          stopScratching(event);
+        }
+      },
+      { passive: true }
+    );
+
+    /* =========================================================
+       Защита от случайного системного жеста браузера
+       ========================================================= */
+
+    document.addEventListener(
+      "gesturestart",
+      (event) => {
+        event.preventDefault();
+      },
+      { passive: false }
+    );
+
+    document.addEventListener(
+      "gesturechange",
+      (event) => {
+        event.preventDefault();
+      },
+      { passive: false }
+    );
+
+    document.addEventListener(
+      "gestureend",
+      (event) => {
+        event.preventDefault();
+      },
+      { passive: false }
+    );
+  </script>
+</body>
+</html>
